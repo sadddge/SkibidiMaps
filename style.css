@@ -35,6 +35,15 @@ body {
     cursor: pointer;
     z-index: 1001;
 }
+.button {
+    background: white;
+    padding: 5px;
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 1001;
+}
 
 .images{
     width: 1200px;

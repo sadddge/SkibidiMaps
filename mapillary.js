@@ -7,6 +7,12 @@ const accessToken = 'MLY|7783857768335335|3c8731e3c9d763554e7d2c4519ee1858';
 let bboxes = ["33.446,-17.649,68.129,47.482"]
 let images = [];
 
+let map = null;
+
+let marker = null;
+let lat_lng = null;
+let polyline = null;
+
 let viewer = null;
 
 function showImage(imageId) {
@@ -44,25 +50,28 @@ function switchImage(index) {
     setTimeout(() => switchImage(index + 1), 4000);
 }
 
-function main() {
-    const map = L.map('map').setView([0, 0], 2); // Coordenadas centradas en el mundo y zoom inicial
+function init_map() {
+    map = L.map('map').setView([0, 0], 2);
 
-    // Añadir capa de tiles de OpenStreetMap
+
+
+    const mapContainer = document.getElementById('container-map');
+    const toggleButton = document.getElementById('toggle-map');
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Manejar el clic en el mapa
     map.on('click', function(e) {
         const { lat, lng } = e.latlng;
-        L.marker([lat, lng]).addTo(map)
-            .bindPopup(`You clicked the map at ${lat.toFixed(2)}, ${lng.toFixed(2)}`)
-            .openPopup();
+        if (marker) {
+            marker.remove();
+        }
+        marker = L.marker([lat, lng]).addTo(map);
+        lat_lng = [lat, lng];
     });
 
-    // Manejar el clic en el botón para expandir/contraer el mapa
-    const mapContainer = document.getElementById('container-map');
-    const toggleButton = document.getElementById('toggle-map');
+
 
     toggleButton.addEventListener('click', () => {
         mapContainer.classList.toggle('expanded');
@@ -71,10 +80,59 @@ function main() {
             map.invalidateSize();
         }, 300);
     });
-
-    fetchAllImages().then(() => {
-        showImage(images[0].id);
-    });
 }
 
-main();
+function distance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c / 1000;
+}
+
+function score() {
+    if (!lat_lng) {
+        alert('Please select a location on the map');
+        return;
+    }
+    let dis = distance(lat_lng[0], lat_lng[1], images[0].coordinates[1], images[0].coordinates[0]);
+    let score = 0;
+    const minDistance = 10;
+    const maxDistance = 2000;
+    const maxScore = 5000;
+
+    if (dis <= minDistance) {
+        score = maxScore;
+    } else if (dis >= maxDistance) {
+        score = 0;
+    } else {
+        // Interpolación lineal
+        
+        score = Math.round(maxScore * (1 - (dis - minDistance) / (maxDistance - minDistance)));
+    }
+
+    alert(`Your score is ${score}`);
+
+    if (polyline) {
+        polyline.remove();
+    }
+    polyline = L.polyline([lat_lng, [images[0].coordinates[1], images[0].coordinates[0]]], { color: 'red' }).addTo(map);
+}
+
+function main() {
+    init_map();
+    showImage(images[0].id);
+
+    const guess = document.getElementById('guess');
+
+    guess.addEventListener('click',() => score());
+}
+
+fetchAllImages().then(main);
