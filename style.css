@@ -115,3 +115,10 @@ header {
     color: white;
     font-size: 20px;
 }
+#distance {
+    top: 25%;
+    left: 10px;
+    transform: translateY(50%);
+    color: white;
+    font-size: 20px;
+}

@@ -2,7 +2,7 @@ import { Viewer } from 'https://unpkg.com/mapillary-js@4.1.2/dist/mapillary.modu
 
 const container = document.getElementById('images');
 const accessToken = 'MLY|7783857768335335|3c8731e3c9d763554e7d2c4519ee1858';
-let bboxes = [`33.446,-17.649,68.129,47.482`]
+let bboxes = ["-72.66258924384681,-38.75716812377113,-72.52557429384086,-38.683561168448485"]
 let imagesPerBbox = 200;
 let images = [];
 let round = 1;
@@ -52,6 +52,7 @@ async function fetchAllImages() {
         }
     }
     images = shuffle(images);
+    console.log(images);
 }
 
 function switchImage(index) {
@@ -125,8 +126,8 @@ function calculateScore() {
     }
 
     let dis = distance(lat_lng[0], lat_lng[1], images[0].coordinates[1], images[0].coordinates[0]);
-    const minDistance = 10;
-    const maxDistance = 2000;
+    const minDistance = 0.1;
+    const maxDistance = 5;
     const maxScore = 5000;
 
     if (dis <= minDistance) {
@@ -164,6 +165,11 @@ function updatePoints() {
     pointsLabel.textContent = "Puntaje: " + String(points);
 }
 
+function updateDistance() {
+    const distanceLabel = document.getElementById('distance');
+    distanceLabel.textContent = "Distancia: " + String(distance(lat_lng[0], lat_lng[1], images[0].coordinates[1], images[0].coordinates[0])) + " km";
+}
+
 function nextImage() {
     if (round == 5) {
         alert('Game Over - Puntaje final: ' + points);
@@ -177,9 +183,12 @@ function nextImage() {
     const roundLabel = document.getElementById('round');
     const next = document.getElementById('next');
     const score = document.getElementById('score');
+    const distance = document.getElementById('distance');
+
     score.textContent = "Score:";
     next.disabled = true;
     roundLabel.textContent = "Round: " + String(round);
+    distance.textContent = "Distancia: ";
     
     marker.remove();
     polyline.remove();
@@ -227,6 +236,7 @@ function main() {
         calculateScore();
         updateScore();
         updatePoints();
+        updateDistance();
     };
 
     next.onclick = () => {
