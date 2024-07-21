@@ -9,22 +9,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-         <div class="location-info" id="location-info"></div>
-         
-         <div class="images" id="images"></div>
+    <div id="page">
+        <header>
+            <h1>Nigga Guesser</h1>
+        </header>
 
-         <div class="button" id="guess">Guess</div>
-
-         <div class="container-map" id="container-map">
-            <div class="map" id="map"></div>
-            <div class="toggle-map" id="toggle-map">Expand</div>
-         </div>
+        <div class="content"> 
+            <button id="guess">Guess</button>
+            <button id="next">Next</button>
+            <div id="game">
+                <div class="images" id="images"></div>
+                <div class="container-map" id="container-map">
+                    <div class="map" id="map"></div>
+                    <div class="toggle-map" id="toggle-map">Expand</div>
+                </div>
+            </div>
+            <div class="label" id="round">Round: 1</div>
+            <label class="label" id="points">Points: 0</label>
+            <label class="label" id="score">Score:</label>
+        </div>
         
-         
     </div>
-   
-
 
     <script type="module" src="mapillary.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
